@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# From <https://stackoverflow.com/a/30029855>
+sudo lsof -iTCP -sTCP:LISTEN -n -P

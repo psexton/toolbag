@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Need to track 3 sets of data
+# 1) When I was last within the city boundaries
+# 2) The last time I was in the Aon
+# 3) The last time I was in the office, before The Event
+
+last_in_office="2020-03-05"
+last_in_aon="2021-07-15"
+last_in_city="2021-07-15"
+today=`date +"%Y-%m-%d"`
+
+elapsed_office=`datediff $last_in_office $today -f '%m months, %w weeks, and %d days'`
+elapsed_aon=`datediff $last_in_aon $today -f '%m months, %w weeks, and %d days'`
+elapsed_city=`datediff $last_in_city $today -f '%m months, %w weeks, and %d days'`
+
+echo "It has been $elapsed_office since you went into the office daily."
+echo "It has been $elapsed_aon since you were in the office at all."
+echo "It has been $elapsed_city since you were in Chicago."

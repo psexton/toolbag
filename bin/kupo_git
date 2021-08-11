@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+UPSTREAM_REMOTE="${UPSTREAM_REMOTE:-upstream}"
+
+#
+# Helper functions
+#
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+upstream_default_branch() {
+  remote_branches=$(git branch -rl)
+  if echo $remote_branches | grep "${UPSTREAM_REMOTE}/main" &> /dev/null;
+  then
+    echo "main"
+  elif echo $remote_branches | grep "${UPSTREAM_REMOTE}/master" &> /dev/null;
+  then
+    echo "master"
+  else
+    die "Neither ${UPSTREAM_REMOTE}/main nor ${UPSTREAM_REMOTE}/master found"
+  fi
+}
+
+local_default_branch() {
+  if git show-branch main &> /dev/null; [ $? -eq 0 ];
+  then
+    echo "main"
+  elif git show-branch master &> /dev/null; [ $? -eq 0 ];
+  then
+    echo "master"
+  else
+    die "Neither local/main nor local/master found"
+  fi
+}
+
+rename_local_to_match_upstream() {
+    old_default=$1
+    new_default=$2
+    git checkout $new_default
+    git branch -d $old_default
+    git remote set-head $UPSTREAM_REMOTE $new_default
+    git remote prune $UPSTREAM_REMOTE
+}
+
+reapply_changes() {
+  new_default=$1
+  git branch -u $UPSTREAM_REMOTE/$new_default
+  git remote set-head $UPSTREAM_REMOTE $new_default
+  git remote prune $UPSTREAM_REMOTE
+}
+
+#
+# Main flow
+#
+
+# Fetch from upstream
+git fetch --quiet $UPSTREAM_REMOTE
+
+# Determine if upstream has master or main
+upstream_branch=$(upstream_default_branch)
+
+# Determine if local has master or main
+local_branch=$(local_default_branch)
+
+if [[ $1 = "--fix" && $local_branch = "main" ]]; then
+  # If we're on main and --fix is provided, try to fix things
+  echo -e "🚑 Upstream default branch is ${upstream_branch} and local default branch is ${local_branch}. Trying a few fixes..."
+  reapply_changes $local_branch
+elif [ $upstream_branch = $local_branch ]; then
+  # Notify and exit if they match
+  if [ $upstream_branch = "main" ]; then
+    echo -e "😺 Upstream and local default branches are both ${upstream_branch}"
+  else
+    echo -e "😿 Upstream and local default branches are both ${upstream_branch}"
+  fi
+else
+  # Rename local if they don't match
+  echo -e "🚧 Upstream default branch is ${upstream_branch} but local default branch is ${local_branch}. Migrating local..."
+  rename_local_to_match_upstream $local_branch $upstream_branch
+fi

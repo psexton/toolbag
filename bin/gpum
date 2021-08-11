@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Git Pull Upstream {Master/Main}
+# we want to match against either main or master, whichever one upstream has
+
+REMOTE="upstream"
+remote_branches=$(git branch -rl)
+  if echo $remote_branches | grep "${REMOTE}/main" &> /dev/null;
+  then
+    git pull $REMOTE main
+  elif echo $remote_branches | grep "${REMOTE}/master" &> /dev/null;
+  then
+    git pull $REMOTE master
+  else
+    exit "Neither upstream/main nor upstream/master found"
+fi
