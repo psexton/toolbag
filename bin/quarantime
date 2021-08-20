@@ -7,7 +7,7 @@
 
 last_in_office="2020-03-05"
 last_in_aon="2021-07-15"
-last_in_city="2021-07-15"
+last_in_city="2021-08-17"
 today=`date +"%Y-%m-%d"`
 
 elapsed_office=`datediff $last_in_office $today -f '%m months, %w weeks, and %d days'`
