@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# datediff requires installing dateutils <https://www.fresse.org/dateutils/>
+
 # Need to track 3 sets of data
 # 1) When I was last within the city boundaries
 # 2) The last time I was in the Aon
