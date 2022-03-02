@@ -9,3 +9,6 @@ docker rmi $(docker images -a -q)
 
 # Remove all volumes
 docker volume rm $(docker volume ls -f dangling=true -q)
+
+# Remove build cache
+docker builder prune -f
