@@ -1,0 +1,12 @@
+egrep -r '\s(class|def)\s' --exclude-dir='target' --exclude-dir='.*' --no-filename |
+	egrep -v '^\s+\*|^\s+//' |
+	sed -E 's,//.*|^\s+\*|/\*.*|.* \*/,,g' |
+	sed -E 's/.*(class|def)\s([A-Za-z_-][A-Za-z0-9_-]*)[([{:\s].*/\2/g' |
+	sort -u |
+	xargs -I bash -c "(
+      grep -r '{}' --exclude-dir='target' --exclude-dir='.*' --no-filename |
+      tr '=' '\n' |
+      grep '{}' |
+      egrep -v '\s(class|def)' &>/dev/null) || echo {}
+    " |
+	xargs -I egrep -r '(class|def) {}'
